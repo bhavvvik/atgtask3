@@ -16,8 +16,7 @@ Route::get('register',[UserController::class,'index1']);
 Route::post('User/auth',[UserController::class,'auth'])->name('user.auth'); 
 Route::post('regauth',[UserController::class,'store'])->name('regauth'); 
 
-
-Route::group(['middleware'=>'user_auth'],function(){
+Route::middleware(['user_auth'])->group(function() {
     Route::get('user/dashboard',[UserController::class,'dashboard']);
     // Route::get('user/logout', function () {
     //     session()->forget('USER_ID');
@@ -26,7 +25,6 @@ Route::group(['middleware'=>'user_auth'],function(){
     
     //     });
     Route::get('user/logout',[UserController::class,'logout']);
-
 });
 
 

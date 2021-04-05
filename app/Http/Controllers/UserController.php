@@ -1,13 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Http\Controllers\Controller;
-
-use App\Models\User;
-
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+// use HasApiTokens;
 
 class UserController extends Controller
 {
@@ -30,23 +28,33 @@ class UserController extends Controller
 
     public function auth(Request $request)
     {
-        $email=$request->post('email');
-        $password=$request->post('password');
-        $result=User::where(['email'=>$email,'password'=>$password])->first();
-        if(isset($result->id)){
-            
-            $request->session()->put('user',$result);
-            
-            return redirect('user/dashboard');
+        $validator =Validator::make($request->all(),
+            [
+                'email'=>'required|email',
+                'password'=>'required'
+            ]
+        );
 
-        }else{
-            $request->session()->flash('error',"please Enter Correct Email And Password");
-            return redirect('login');
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+            // echo "error";
+        }
+
+        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+            $user=Auth::user();
+            $token =$user->createToken('token')->accessToken;
+
+            return response()->json(["status" => "success", "success" => true, "login" => true, "token" => $token, "data" => $user]);
+        }
+        else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! invalid email or password"]);
         }
     }
+    
     public function dashboard()
     { 
     //   return view('user/dashboard');
+
         $user = session()->get('user');
       return view('user/dashboard')->with('secarr',User::find($user->id));
 
@@ -54,12 +62,20 @@ class UserController extends Controller
     }
     public function logout()
     { 
-        session()->forget('USER_ID');
+        session()->forget('user');
         session()->flash('error','Logout succesfully.');
         return redirect('login');
 
     }
-
+    public function userDetail() {
+        $user=Auth::user();
+        if(!is_null($user)) {
+            return response()->json(["status" =>"success", "success" => true, "user" => $user]);
+        }
+        else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
+        }
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -78,49 +94,38 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {    $request->validate([
-        'name' => 'required|min:2|max:50|alpha',            
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:8',                
-        'confirm_password' => 'required|min:6|max:20|same:password',
+    {   
+        $validator= Validator::make($request->all(),
+            [
+                 'name' => 'required|min:2|max:50|alpha',            
+                 'email' => 'required|email|unique:users',
+                 'password' => 'required|min:8'
+            ]
+        );
 
-    ]);
-       
-        $res=new User;
-        $res->name=$request->input('name');
-        $res->email=$request->input('email');
-        $res->password=$request->input('password');
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+        }
 
-        $res->save();
+        $dataArray= array(
+            "name" =>$request->name,
+            "email" =>$request->email,
+            "password" =>bcrypt($request->password),
 
-        $request->session()->flash('error','Data submited!!');
-       return redirect('login');
+        );
 
+        $user =User::create($dataArray);
+
+        if(!is_null($user)) {
+            return response()->json(["status" => "Success", "success" => true, "data" => $user]);
+        }
+
+        else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! user not created. please try again."]);
+        }       
     }
 
-    public function req(Request $request)
-{
-    // $rules = [
-    //     'name' => 'required|min:2|max:50|alpha',            
-    //         'email' => 'required|email|unique:users',
-    //         'password' => 'required|min:8',                
-    //         'confirm_password' => 'required|min:6|max:20|same:password',
-    // ];
-
-    // $customMessages = [
-    //     'name.required' => 'Name is required',
-    //         'name.min' => 'Name must be at least 2 characters.',
-    //         'name.alpha' => 'Name should be letters.',
-    //         'name.max' => 'Name should not be greater than 50 characters.',
-    //         'password.min' => 'Name must be at least 8 characters.',
-    //         'email.unique' => 'Email should not be greater than 50 characters.',
-    // ];
-
-    // $this->validate($request, $rules, $customMessages);
-
-
-    
-}
+ 
 
     /**
      * Display the specified resource.
