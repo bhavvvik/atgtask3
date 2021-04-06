@@ -37,7 +37,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::post("todo/add", [TaskController::class,'create']);
     Route::get("todo/tasks", [TaskController::class,'tasks']);
     Route::get("todo/task/{task_id}", [TaskController::class,'task']);
-    Route::post("todo/change/{task_id}", [TaskController::class,'change']);
+    Route::post("todo/status/{task_id}", [TaskController::class,'change']);
 
 
     
