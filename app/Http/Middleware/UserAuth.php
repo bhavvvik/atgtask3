@@ -15,15 +15,23 @@ class UserAuth
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
-    {
-        if($request->session()->has('user')){
+    {   
+    //    $token=localStorage.setItem('access_token', response.token);
+        
+        // $token=$request->header('APP_KEY');
+        // dd($token);
+        // dd($request->session()->all());
+        // dd($request->session()->has('access_token'));
+        if(!empty(auth()->user())){
         //  dd($request->session()->get('user'));
         
         
-        return $next($request);
+        return $next($request); 
         }else{
+            
             $request->session()->flash('error',"Access denied!!");
             return redirect('login');
+            
         }
         
     }

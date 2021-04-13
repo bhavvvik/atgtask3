@@ -26,96 +26,105 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function create(Request $request)
     {
-        
-            $user  =Auth::user();
-            $validator =Validator::make($request->all(),
-                [
-                    "task" => "required",
-                    
-                ]
-            );
-            if($validator->fails()) {
-                return response()->json(["validation_errors" => $validator->errors()]);
-            }
-    
-            $task_array  =array(
-                "task" => $request->task,
-                "status"=> $request->status,
-                "user_id"  => $user->id
-            );
-    
-            $task_id=$request->id;
-    
-            if($task_id != "") {
-                $task_status = Task::where("id", $task_id)->update($task_array);
-    
-                if($task_status == 1) {
-                    return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Todo updated successfully", "data" => $task_array]);
-                }
-    
-                else {
-                    return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Todo not updated"]);
-                }
-    
-            }
-    
-            $task  =Task::create($task_array);
-    
-            if(!is_null($task)) {
-                return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $task]);
-            }
-    
-            else {
-                return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! task not created."]);
-            }
-    }
 
+        $user  = Auth::user();
+        $validator = Validator::make(
+            $request->all(),
+            [
+                "task_title" => "required",
 
-   
-    public function tasks() {
-        $tasks=array();
-        $user=Auth::user();
-        $tasks=Task::where("user_id", $user->id)->get();
-        if(count($tasks) > 0) {
-            return response()->json(["status" => $this->sucess_status, "success" => true, "count" => count($tasks), "data" => $tasks]);
+            ]
+        );
+        if ($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
         }
 
-        else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no todo found"]);
+        $task_array  = array(
+            "task" => $request->task_title,
+            "status" => $request->status,
+            "user_id"  => $user->id
+        );
+
+        $task_id = $request->id;
+
+        if ($task_id != "") {
+            $task_status = Task::where("id", $task_id)->update($task_array);
+
+            if ($task_status == 1) {
+
+                return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Todo updated successfully", "data" => $task_array]);
+            } else {
+                return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Todo not updated"]);
+            }
+        }
+
+        $task  = Task::create($task_array);
+
+        if (!is_null($task)) {
+            return response()->json(["status" => $this->sucess_status, "success" => true, "data" => Task::find($task->id)]);
+        } else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! task not created."]);
         }
     }
 
-    public function task($task_id) {
-        if($task_id == 'undefined' || $task_id == "") {
+
+
+    public function tasks(Request $request)
+    {
+        $tasks = array();
+        $user = Auth::user();
+        $tasks = Task::where("user_id", $user->id)->get();
+
+        $accessToken = $request->session()->get('user_token');
+
+        // if(count($tasks) > 0) {
+        // $response= response()->json(["status" => $this->sucess_status, "success" => true, "count" => count($tasks), "data" => $tasks]);
+        // return view("user/dashboard", compact("tasks"),$response);
+        return view("user/tasks", compact("tasks", "accessToken"));
+        // }
+    }
+
+    public function task($task_id)
+    {
+        if ($task_id == 'undefined' || $task_id == "") {
             return response()->json(["status" => "failed", "success" => false, "message" => "Alert! enter the task id"]);
         }
 
         $task =  Task::find($task_id);
 
-        if(!is_null($task)) {
+        if (!is_null($task)) {
             return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $task]);
-        }
-
-        else {
+        } else {
             return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no todo found"]);
         }
     }
 
 
 
-    public function change($task_id,Request $request) {
-        $task =  Task::find($task_id);
-        // dd($request->all());
+    public function change($task_id, Request $request)
+    {
+        // $task =  Task::find($task_id);
+        // // dd($request->all());
 
-        
-            $task->status = is_null($request->status) ? $task->status : $request->status;
-        
+
+        // $task->status = is_null($request->status) ? $task->status : $request->status;
+
+        // $task->save();
+        // return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $task]);
+
+
+        $task = Task::findOrFail($task_id);
+        // dd($task);
+        // dd($request->status);
+        $task->status = $request->status;
         $task->save();
-        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $task]);
-            
-      
+        // dd($task->status);
+
+        return response()->json(["status" => $this->sucess_status,"success" => true,'message' => 'User status updated successfully.',"data" => $task->status]);
+
     }
 
 

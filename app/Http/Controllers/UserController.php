@@ -1,14 +1,27 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Session;
+use Lcobucci\JWT\Parser as JwtParser;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\UnencryptedToken;
+
 // use HasApiTokens;
 
 class UserController extends Controller
 {
+
+    protected $jwt;
+
+    public function __construct(JwtParser $jwt)
+    {
+        $this->jwt = $jwt;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -19,60 +32,70 @@ class UserController extends Controller
         return view('user.login');
     }
     public function index1()
-    {   
-       
-    
+    {
+
+
         return view('user.register');
     }
-    
+
 
     public function auth(Request $request)
     {
-        $validator =Validator::make($request->all(),
+        $validator = Validator::make(
+            $request->all(),
             [
-                'email'=>'required|email',
-                'password'=>'required'
+                'email' => 'required|email',
+                'password' => 'required'
             ]
         );
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
             // echo "error";
         }
 
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
-            $user=Auth::user();
-            $token =$user->createToken('token')->accessToken;
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
+            $token = $user->createToken('token')->accessToken;
 
-            return response()->json(["status" => "success", "success" => true, "login" => true, "token" => $token, "data" => $user]);
-        }
-        else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! invalid email or password"]);
+            Session::put('user_token', $token);
+            // $request->session()->put('user_token', $token);
+            // session(['user_token' => $token]);
+
+            return redirect('user/dashboard');
+
+            // return response()->json(["status" => "success", "success" => true, "login" => true, "token" => $token,"data" => $user]);
+            // return response()->json([ [1] ]);
+
+
+        } else {
+            $request->session()->flash('error', "please Enter Correct Email And Password");
+            return redirect('login');
+            // return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! invalid email or password"]);
+            // return response()->json([ [3] ]);
+
         }
     }
-    
-    public function dashboard()
-    { 
-    //   return view('user/dashboard');
 
-        $user = session()->get('user');
-      return view('user/dashboard')->with('secarr',User::find($user->id));
-
-
+    public function dashboard(Request $request)
+    {
+        return view('user/dashboard');
     }
     public function logout()
-    { 
-        session()->forget('user');
-        session()->flash('error','Logout succesfully.');
+    {
+        // session()->forget('user');
+        // session()->flash('error', 'Logout succesfully.');
+        // return redirect('login');
+        auth()->logout();
         return redirect('login');
 
     }
-    public function userDetail() {
-        $user=Auth::user();
-        if(!is_null($user)) {
-            return response()->json(["status" =>"success", "success" => true, "user" => $user]);
-        }
-        else {
+    public function userDetail()
+    {
+        $user = Auth::user();
+        if (!is_null($user)) {
+            return response()->json(["status" => "success", "success" => true, "user" => $user]);
+        } else {
             return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
         }
     }
@@ -94,38 +117,40 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
-        $validator= Validator::make($request->all(),
+    {
+        $validator = Validator::make(
+            $request->all(),
             [
-                 'name' => 'required|min:2|max:50|alpha',            
-                 'email' => 'required|email|unique:users',
-                 'password' => 'required|min:8'
+                'name' => 'required|min:2|max:50|alpha',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:8'
             ]
         );
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
         }
 
-        $dataArray= array(
-            "name" =>$request->name,
-            "email" =>$request->email,
-            "password" =>bcrypt($request->password),
+        $dataArray = array(
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => bcrypt($request->password),
 
         );
 
-        $user =User::create($dataArray);
+        $user = User::create($dataArray);
 
-        if(!is_null($user)) {
-            return response()->json(["status" => "Success", "success" => true, "data" => $user]);
+        if (!is_null($user)) {
+            // return response()->json(["status" => "Success", "success" => true, "data" => $user]);
+            return redirect('login');
+        } else {
+            // return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! user not created. please try again."]);
+            return redirect('register');
+            
         }
-
-        else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! user not created. please try again."]);
-        }       
     }
 
- 
+
 
     /**
      * Display the specified resource.
