@@ -77,7 +77,7 @@ return [
             'prefix_indexes' => true,
             'schema' => 'public',
             'sslmode' => 'prefer',
-             // 'url' => env('DATABASE_URL'),
+             'url' => env('DATABASE_URL'),
         ],
         // 'pgsql' => [
         //     'driver' => 'pgsql',
