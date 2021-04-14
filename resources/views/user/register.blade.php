@@ -103,7 +103,9 @@
                                  <td width="118" align="left" valign="middle" class="style1">
                                      <input type="text" class="form-control" size="10px" id="name" placeholder="name" name="name">
                                  </td>
-
+                                 @error('name')
+                                    {{$message}}
+                                    @enderror
                              </tr>
 
                              <tr>
@@ -111,7 +113,9 @@
                                  <td width="118" align="left" valign="middle" class="style1">
                                      <input type="email" class="form-control" size="10px" id="email" placeholder="email" name="email">
                                  </td>
-
+                                 @error('email')
+                                    {{$message}}
+                                    @enderror
                              </tr>
 
                              <tr>
@@ -119,7 +123,9 @@
                                  <td width="118" align="left" valign="middle" class="style1">
                                      <input type="password" class="form-control" size="10px" id="password" placeholder="password" name="password">
                                  </td>
-
+                                 @error('password')
+                                    {{$message}}
+                                    @enderror
                              </tr>
 
 
