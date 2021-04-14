@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Session;
 use Lcobucci\JWT\Parser as JwtParser;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
-
+use Illuminate\Support\Facades\Redirect;
 // use HasApiTokens;
 
 class UserController extends Controller
@@ -129,7 +129,8 @@ class UserController extends Controller
 
         if ($validator->fails()) {
             // return response()->json(["validation_errors" => $validator->errors()]);
-            return $validator->errors();
+            // return $validator->errors();
+            return Redirect::back()->withErrors($validator);
         }
 
         $dataArray = array(
