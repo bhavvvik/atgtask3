@@ -70,6 +70,9 @@
             text-decoration: none;
 
         }
+        .error{
+            color:red;
+        }
     </style>
 </head>
 
@@ -102,9 +105,11 @@
                                 <td width="118" align="left" valign="middle" class="style1">name</td>
                                 <td width="118" align="left" valign="middle" class="style1">
                                     <input type="text" class="form-control" size="10px" id="name" placeholder="name" name="name">
-                                    @error('name')
+                                   <div class="error">
+                                   @error('name')
                                     {{$message}}
-                                    @enderror
+                                    @enderror</div>
+                                   
                                 </td>
 
                             </tr>
@@ -113,9 +118,11 @@
                                 <td width="118" align="left" valign="middle" class="style1">email</td>
                                 <td width="118" align="left" valign="middle" class="style1">
                                     <input type="email" class="form-control" size="10px" id="email" placeholder="email" name="email">
-                                    @error('email')
+                                   <div class="error"> @error('email')
                                     {{$message}}
-                                    @enderror
+                                    @enderror</div>
+                                    
+                                   
                                 </td>
 
                             </tr>
@@ -124,9 +131,11 @@
                                 <td width="118" align="left" valign="middle" class="style1">Password</td>
                                 <td width="118" align="left" valign="middle" class="style1">
                                     <input type="password" class="form-control" size="10px" id="password" placeholder="password" name="password">
-                                    @error('password')
+                                   <div class="error">@error('password')
                                     {{$message}}
-                                    @enderror
+                                    @enderror</div>
+                                    
+                                    
                                 </td>
                                 <!-- @if($errors->any())
                                 {{ implode('', $errors->all('<div>:message</div>')) }}
