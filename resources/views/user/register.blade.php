@@ -128,9 +128,9 @@
                                     {{$message}}
                                     @enderror
                                 </td>
-                                @if($errors->any())
+                                <!-- @if($errors->any())
                                 {{ implode('', $errors->all('<div>:message</div>')) }}
-                                @endif
+                                @endif -->
                             </tr>
 
 
