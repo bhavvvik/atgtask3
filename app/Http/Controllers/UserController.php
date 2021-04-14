@@ -128,7 +128,8 @@ class UserController extends Controller
         );
 
         if ($validator->fails()) {
-            return response()->json(["validation_errors" => $validator->errors()]);
+            // return response()->json(["validation_errors" => $validator->errors()]);
+            return $validator->errors();
         }
 
         $dataArray = array(
