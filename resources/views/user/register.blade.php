@@ -102,30 +102,33 @@
                                  <td width="118" align="left" valign="middle" class="style1">name</td>
                                  <td width="118" align="left" valign="middle" class="style1">
                                      <input type="text" class="form-control" size="10px" id="name" placeholder="name" name="name">
-                                 </td>
-                                 @error('name')
+                                     @error('name')
                                     {{$message}}
                                     @enderror
+                                 </td>
+                                 
                              </tr>
 
                              <tr>
                                  <td width="118" align="left" valign="middle" class="style1">email</td>
                                  <td width="118" align="left" valign="middle" class="style1">
                                      <input type="email" class="form-control" size="10px" id="email" placeholder="email" name="email">
-                                 </td>
-                                 @error('email')
+                                     @error('email')
                                     {{$message}}
                                     @enderror
+                                 </td>
+                                 
                              </tr>
 
                              <tr>
                                  <td width="118" align="left" valign="middle" class="style1">Password</td>
                                  <td width="118" align="left" valign="middle" class="style1">
                                      <input type="password" class="form-control" size="10px" id="password" placeholder="password" name="password">
-                                 </td>
-                                 @error('password')
+                                     @error('password')
                                     {{$message}}
                                     @enderror
+                                 </td>
+                                
                              </tr>
 
 
